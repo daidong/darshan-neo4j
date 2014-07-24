@@ -1,0 +1,16 @@
+The Darshan source tree is divided into two parts:
+
+- darshan-runtime: to be installed on systems where you intend to 
+  instrument MPI applications.  See darshan-runtime/doc/darshan-runtime.txt
+  for installation instructions.
+
+- darshan-util: to be installed on systems where you intend to analyze
+  log files produced by darshan-runtime.  See
+  darshan-util/doc/darshan-util.txt for installation instructions.
+
+General documentation can be found on the Darshan documentation web page:
+http://www.mcs.anl.gov/darshan/documentation/
+
+The darshan-test directory contains various test harnesses, benchmarks,
+patches, and unsupported utilites that are mainly of interest to Darshan
+developers.
