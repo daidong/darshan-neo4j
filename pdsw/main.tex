@@ -1,0 +1,42 @@
+\documentclass[10pt, conference]{IEEEtran}
+\usepackage[numbers]{natbib}
+\usepackage{flushend}
+%\usepackage{cite}
+%\usepackage{enumitem}
+\usepackage{tabularx, color, colortbl}
+\usepackage{graphicx, subfigure}
+\usepackage{amsmath, amssymb}
+\usepackage{algorithm}
+%\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+%\usepackage{listings}
+\usepackage[noblocks]{authblk}
+\usepackage{epstopdf}
+
+\definecolor{Gray}{gray}{0.9}
+\hyphenation{op-tical net-works semi-conduc-tor}
+\algrenewcommand{\algorithmiccomment}[1]{\hskip3em$\rightarrow$ #1}
+
+\begin{document}
+\title{Unified Rich Metadata Model: A Graph-based Solution}
+\author[1]{Dong Dai}
+\author[1]{Yong Chen}
+\author[2]{Dries Kimpe}
+\author[2]{Phil Carns}
+\author[2]{Robert Ross}
+\affil[1]{Computer Science Department, Texas Tech University, USA, \{dong.dai, yong.chen\}@ttu.edu}
+%\affil[1]{dong.dai@ttu.edu, yong.chen@ttu.edu}
+\affil[2]{Mathematics and Computer Science Division, Argonne National Laboratory, USA, \{dkimpe, pcarns, rross\}@mcs.anl.gov}
+%\affil[2]{dkimpe@mcs.anl.gov, rross@mcs.anl.gov}
+
+\maketitle
+\input{abstract}
+\input{intro}
+\input{related}
+\input{conclusion}
+\input{ack}
+
+\bibliographystyle{IEEEtran}
+\bibliography{bib}
+
+\end{document}
