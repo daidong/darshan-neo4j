@@ -1,0 +1,64 @@
+\section{Use Cases}
+
+Metadata graph model introduced in previous section is expressive and provides many new functionalities. We will show this based on several use cases from simple to complex in this section.
+
+\subsection{User Audit}
+Data auditing is a critical capability in large computing facilities where users from different institutions or countries share the same cluster. A detailed view of users behaviors can be useful both for daily maintenance and security. In \textit{gRMM} model, we collect the \textit{run} relationships between Users and Executions. Each Execution will read or write certain set of files and generate relationships named \textit{read/write}. If administrators want to find all the files that were read by a specific user during given time frame [$t_s$, $t_e$], they can query the graph from the given user, travel through \textit{run} edges to all the executions. Then, they can filter them and travel through the \textit{read} edges to get the file collection. We show the query script using the Gremlin graph traversal language for this user-centric data audition.
+
+\begin{lstlisting}
+files = graph.V(userA).out('run')
+		     .filter{it.start_ts > t_s 
+		     		     && it.end_ts < t_e}
+		     .out('read')
+\end{lstlisting}
+
+Another typical use case will be to find all the users that used to write to a file which was found broken later from time $t_s$. The Gremlin script for this query looks like following:
+\begin{lstlisting}
+users = graph.V(fileA).out('wasWrittenBy')
+		     .filter{it.start_ts > t_s}
+		     .out('wasRunBy')
+\end{lstlisting}
+
+
+\subsection{Hierarchical Data Traversal}
+Hierarchical data organization is used to present a logical layout of data sets to users. The simplest example of hierarchical data traversal is traditional directory namespace traveling, which has been the de facto method to travel through file systems for as long as Unix has existed. The tree structure, which is used to organize all the files, mainly includes two different kinds of nodes: directories and files. The directories can be viewed as a special kind of file which only stores indexes of other files or directories. 
+
+In \textit{gRMM}, we abstract both the directories and files as Data Object entity. Directory \textit{contains} multiple files or directories; both files and directories \textit{belongs} to a certain directory. Given an absolute path, locating the file becomes going through a bunch of \textit{contains} edges; listing all files inside a directory becomes getting the destiny nodes of all the \textit{contains} edges. Access control metadata attached in users, files, and directories also should be stored and verified while traversing directories. 
+
+\begin{lstlisting}
+// locate: /rootFS/dir/file.data
+graph.V(rootFS).out('contains')
+     .filter{it.name = dir}
+     .out('contains')
+     .filter{it.name = file.data}
+\end{lstlisting}
+
+An appealing advantage of using graph to store the directory structure of file system is the scalability. Traditional POSIX directory structure limits the number of files inside one directory. So, HPC system that may have millions of files under one directory, needs to use deploy specific system like Giga+ to distribute the metadata into multiple servers to improve the performance. However, for \textit{gRMM}, directories with millions of files indicate a node with millions of out-edges in the graph. There are already bunch of standard ways to slice such a `big' node into different servers for load balance in distributed graph storage systems.
+
+In addition to traditional POSIX-style files and directories, several other hierarchical data traversal examples are possible in \textit{gRMM} as well. For example, the semantic data management and traversal. Scientists usually need to manage their data in a semantic way, like arranging all of the inputs and outputs of a single simulation execution together. Although careful file naming and directories placement helps here, it is still too rigid for use in complex scenarios as when a file is a common input of multiple simulations. However, storing enough metadata between simulation executions and their inputs/outputs can intelligently help users organize data in multiple dimensions.
+
+\subsection{Provenance Support}
+Provenance has a wide range of use cases, \textit{gRMM} as a superset of provenance, is able to support most of these usages. To show how metadata graph supports provenance, we use the problem in the first Provenance Challenge as an example. In this challenge, a simple example work-flow was provided as the basis, a workable provenance system should be able to represent the work-flow and all the relevant provenance for the example work-flow, and, most importantly, be able to answer nine predefined queries.
+
+Based on proposed graph model, we can easily abstract the work-flow as serial of Executions run by one User. Each execution reads several Data Objects and generates outputs for applications in next phase. Based on this work-flow, the provenance system needs to answer nine queries. Here, we use the 8th query as an example:
+
+\begin{lstlisting}
+//Query 8
+wf{*}: upstream(x) union x
+       where x.module=AlignWarp
+       and
+       y in input(x)
+       and
+       y.annotation('center')='UChicago'
+\end{lstlisting}
+
+This query mean we need to return all applications whose module is `AlignWarp' and all their inputs are annotated with key-value pair: [`center':`UChicago']. This can be easily expressed in Gremlin script running on the metadata graph:
+\begin{lstlisting}
+//Query 8
+exes = graph.V(Executions).out('exe')
+			.filter(it.name = AlignWarp)
+exes.out('read').filter(it.center = 'UChicago')
+
+\end{lstlisting}
+
+A notable advantage of \textit{gRMM} comparing with pure provenance system is that we can cross-reference different category of metadata in an unified way. If some provenance query needs the help of other metadata, like the file size, permission mode, or user group information etc., doing them in \textit{gRMM} will be more efficient and straightforwards.

@@ -1,0 +1,62 @@
+\section{Graph-based Metadata Model}
+Many times, we have already consider metadata as graph or part of graph. The traditional directory-based file management constructs a tree structure to manage files. This tree is a subgraph. The provenance standard considers the provenance of objects is represented by an annotated causality graph, which is a directed acyclic graph, enriched with annotations capturing further information. This is already a graph, but contains restrictions on causality.
+
+We generalize these graphs in HPC scenarios and propose the metadata graph model in this paper. The metadata graph is derived from the property graph model instead of traditional weighted graph. It includes vertice that represent entities in the system, edges that show their relationships, and properties, which is the main difference from traditional graph. The properties annotate both vertice and edges, and can store arbitrary information users need. In the following subsections, we will introduce the details of metadata graph model.
+
+\subsection{Entity/Vertex}
+
+In a HPC platform, there are different entities, like users, processes, and data files that play different roles. Moreover, users also can define other logical entities, like \textit{user groups} or \textit{work-flow} as they needed. 
+In \textit{gRMM}, we define
+three basic entities, and allow users to extend them as user-defined entities.
+
+\begin{itemize}
+\item \textit{Data Object}: It represents the smallest data unit in storage systems. It could be files or even data objects. 
+
+\item \textit{Thread/Process/Job}: It represents the execution of application. There are
+basically three kinds of executions: the \textit{job} submitted by
+the user, parallel \textit{processes} scheduled based on the submitted job, and the \textit{threads} running in each processes. For simplicity, we name these entities as \textit{Execution} entity in later discussion.
+
+\item \textit{User}: It represents the users of the cluster. They submit jobs, run applications, and start or stop jobs.
+\end{itemize}
+
+In addition to these basic entities, \textit{gRMM} also allows users
+to create their own entities. However, it is not allowed to create an entity without connecting with existing entities. The main reason is to keep every element in the graph accessible by traveling through the graph.
+
+\subsection{Relation/Edge}
+Based on the basic entities, we define the relationships between them as the basic relationships as Table~\ref{rel} shows. 
+
+\begin{table}[h]
+\caption{Default Relationships Definition.}
+  \label{rel}
+\centering
+\begin{tabular}{|c||c|c|c|}
+\hline
+ & \textbf{User} & \textbf{Execution} & \textbf{Data Objects} \\ \hline
+\textbf{User} &  & \textit{run} & \\ \cline{1-4}
+\textbf{Execution} & \textit{wasRunBy} & \begin{tabular}[c]{@{}l@{}}\textit{belongs,}\\ \textit{contains}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textit{read/write,}\\ \textit{exe/exedBy}\end{tabular}\\ \cline{1-4}
+\textbf{Data Objects} &  & \begin{tabular}[c]{@{}l@{}}\textit{wasReadBy,}\\ \textit{wasWrittenBy}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textit{belongs,}\\ \textit{contains}\end{tabular} \\ \hline
+\end{tabular}
+\end{table}
+
+In Table~\ref{rel}, each cell shows the relationships from the row identifier to the column identifier. It denotes a directed edge in the metadata graph. For example, \textit{run} indicates that the User runs an Execution, which could be Job or just a Process; \textit{exe} means the Execution starts from an executable, which is a Data Object.
+The \textit{belongs/contains} cell shows a general relationship between two entities. In the Execution entity case, it means the Job contains Processes and Process belongs to a Job. In the Data Objects case, it describes that one directory contain multiple files as the directory is also considered as a file in most directory-based storage systems. \textit{belongs/contains} are one of the
+most common pair relationships and can be used to form new user-defined
+entities.
+
+\textit{gRMM} allows users to create their own relationships. The new relationships can be used to support more complex semantics that current graph does not record. For example, two users can have a new relationships called \textit{login-together} if they login the system roughly at the same time.
+
+
+\subsection{Property}
+Both entities and relationships may be annotated with arbitrary properties. A property is a key-value pair, which could be default or user-defined. We list some default properties here. 
+
+\begin{itemize}
+\item \textit{Type}. Entities and relationships both have a default property named `Type' to distinguish themselves. For example, the User entity has type `User' and \textit{Run} relationship has type `run'.
+
+\item \textit{Attributes of Entities}. There are all different kinds of attributes for User, Execution, and Data Object entities. The complete list can be too long, but some significant examples are listed here, including the user name, user privilege, execution parameters, data name, and data permission mode etc.
+
+\item \textit{Attributes of Relationships}. Most of the edges have timestamps as attributes. For example, the \textit{run} relationship has a $start_{ts}$ and a $end_{ts}$ attribute; the \textit{read} relationship has one $ts$ attribute. 
+
+\end{itemize}
+
+\textit{gRMM} does not place any limitation on the user-defined properties except their keys need to unique in each users' namespace. The namespace is a concept to divide isolate these user-defined entities, relationships and attributes. Each user has its own namespace, so that they are free to create any metadata they need without introducing global confusion.
+
