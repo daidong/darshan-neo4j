@@ -1,0 +1,84 @@
+\section{Metadata Graph Prototype}
+Collecting rich metadata usually requires modifications on HPC runtime as many rich metadata were generated from the runtime systems, like the jobs, processes, and read/write operations. To help us understand the attributes of a rich metadata graph in an HPC context, we exploit Darshan trace logs as a source of rich metadata in current prototyping.
+
+\subsection{Mapping Strategy}
+Darshan utility is a MPI library that can be linked to users' applications and generates I/O behaviors logs during they are executing. Each Darshan log file represents a distinct job. The log entries of a job contain the user id who started this job, the executable file that the job was based on, the parameters of this execution, some environmental variables, and most importantly, the file access history of each process (ranks) inside this job (MPI program). Note that, the collected Darshan traces have been anonymized, only storing the hashed values of file names, path, user names, and job names.
+
+We map Darshan logs to the metadata graph defined in Section II. Basically, each unique user id indicates a User entity, each Darshan log file represents a Job, all the ranks inside a job correspond to the Processes, and both the executables and data files are abstracted as different Data Object entities. Currently, Darshan does not capture directory structure as it only stores the hashed value of file paths, so we synthetically create the simplest directory structures: data files visited by each execution are considered under the same directory, and all these directories accessed by one user are placed under one directory for each user. We collect basic metadata in Darshan logs as the properties too: the \textit{Type} property is set to each entity and relationship, the \textit{start\_time} and \textit{end\_time} of a job is mapped to the $start_{ts}$ and $end_{ts}$ properties of \textit{run/exe} and \textit{read/write} relationships. Based on this mapping, we were able to import a whole year' Darshan trace (\textit{2013}) on Intrepid machine into an example graph.
+
+In fact, current mapping of Darshan logs emitted many common metadata due to the limitation of the data sources. For example, the logs do not have the metadata about the users; do not contain the directory structure or file permissions; and each job is based on a single executable file without configuration files and parameters. However, the generated graph still show many interesting properties of such metadata graph and offer a great potential in data management.
+
+\subsection{Graph Size}
+
+The first property of metadata graph is the their potential size. The graph size described here is in terms of the number of vertice, edges, and properties. The real storage size is based on those numbers but may vary under different data structures and storage layouts. 
+
+\begin{table}[h]
+\caption{Darshan Graph Size and Some Comparisons.}
+  \label{abs}
+\centering
+\begin{tabular}{|c||c|c|c|c|}
+\hline
+Number                                                                 & Basic & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}With\\ I/O Ranks\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}With\\ Full Ranks\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}With\\ Directory\end{tabular}} \\ \hline
+\begin{tabular}[c]{@{}c@{}}Vertice\end{tabular}    &      34,656 K &    41,729 K                                                                          &  147,886 K                                                                              &     147,934 K                                                                          \\ \hline
+\begin{tabular}[c]{@{}c@{}}Edges\end{tabular}     &      126,488 K &  133,561 K                                                                            &     239,766 K                                                                       &    366,253 K                                                                           \\ \hline
+\begin{tabular}[c]{@{}c@{}}Properties\end{tabular} &   448,775 K    &  484,141 K                                                                              &      1,015,070 K                                                                          &           1,394,628 K                                                                    \\ \hline
+\begin{tabular}[c]{@{}c@{}}Total Size\end{tabular} &   609,918 K    & 659,431 K                                                                              &      1,402,722 K                                                                       &        1,908,815 K                                                                       \\ \hline
+\hline
+\hline
+        & \begin{tabular}[c]{@{}c@{}}Twitter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Road Graph \\ USA\end{tabular} & \begin{tabular}[c]{@{}c@{}}Web Page \\ Graph\end{tabular} & \begin{tabular}[c]{@{}c@{}}Human \\ Brain\end{tabular} \\ \hline
+Vertice & 645,750 K                                                & 24,000 K                                                  & 2.1 billion                                               & 100 billion                                            \\ \hline
+Edges   & 81,364,500 K                                             & 29,100 K                                                  & 15 billion                                                & 1,000 trillion                                         \\ \hline
+
+\end{tabular}
+\end{table}
+
+
+The top half of Table~\ref{abs} shows the graph size of example metadata graph for different levels of detail. The first column considers the job as Execution entity and eliminates the all the processes (ranks) inside this job. All the I/O behaviors from different processes inside a job are considered as from the Job entity. The second column (\textit{With I/O Ranks}) records part of the ranks which have I/O operations. In many cases, this indicates the rank 0 process or the aggregators in two-phase I/O. The third column (\textit{With Full Ranks}) records all the ranks as Processes entities no matter they performed I/O or not. The last column shows the graph size with the synthetic directory structures and full ranks. This table clearly shows that increasing the level of detailed during collecting metadata will dramatically increase the graph size. So, administrators should wisely choose their metadata according to the usage. And, the user-defined relationships should be created with caution to avoid huge increasing in graph size too.
+
+In the button half of Table~\ref{abs}, we show several typical large-scale graphs from different fields, including the social network (e.g. Twitter), the road map graph (e.g. USA map), the Internet web pages, and the largest and most complex graph, human brain. By comparing with them, we can notice that, although the metadata graph is large and could easily be much larger, they are still manageable using current techniques.
+
+\subsection{Graph Structure}
+In addition to the graph size, the graph structure also matters in future storage and processing. Before discussing the graph structure, we first list a brief view of different entities of the example metadata graph in Table~\ref{smg}.
+
+\begin{table}[h]
+\caption{Statistics of Metadata Graph.}
+  \label{smg}
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+ & User  & Job  & Proc.   & Rank     & File     \\ \hline
+ Num & 117      & 47,592  & 10,085,931 & 113,278,038 & 34,608,033 \\ \hline
+\end{tabular}
+\end{table}
+
+This table shows different entities in metadata graph have totally different size and structures. The degree of a user node indicates how many jobs the user submitted in total; the degree of a job node shows how many processes it contains; the degree of each process node shows how many files are read or written by it. Data Objects both have \textit{contains/belongs} edges to other Data Objects and also have \textit{exe, read, write} edges to the Execution nodes.
+
+   \begin{Figure}{Node degree for different entities.}[doe]
+     \graphfile*[3]{exps/udegree.pdf}[User node degree]
+     \graphfile*[3]{exps/jdegree.pdf}[Job node degree]\\     
+     \graphfile*[3]{exps/pdegree.pdf}[Process node degree]
+     \graphfile*[3]{exps/fdegree.pdf}[File node degree]
+   \end{Figure}
+    
+Figure~\ref{doe} shows the node degree distributions of those four different entities. The $x$-axis denotes the degree, the $y$-axis shows the number of vertices which have that number of degree. Both $x$-axis and $y$-axis are `log' values. 
+
+To describe the graph structure, we compared these distributions with a well-known property of nature graphs: the \textit{skewed} power-law degree distribution, where most vertices have relatively few neighbors while a few vertices have many neighbors. Under power-law degree distribution, the probability that a vertex has degree $d$ is given by: $\textbf{P}(d) \propto d^{-\alpha}$. Here, $\alpha$ is a positive constant that control the ``skewness'' of the degree distribution: higher $\alpha$ indicates lower density, and vast majority of vertices are low degree. Lower $\alpha$ shows higher density and more high degree vertices. 
+
+In Fig.~\ref{doe}, to show whether the distribution fits the power-law attributes, we plot three lines to describe the power-law distribution with different $\alpha$ values. Intuitively, we can notice that the \textit{File} nodes fit the power-law degree distribution best as Fig.~\ref{doe}(d) shows. There are two things we can learn from this. First, the files access fit the power-lay degree distribution, which means that, in real systems, most files are seldom accessed, but there are a small part of files are really visited highly frequently. Second, as the figure shows, the larger $\alpha$ value ($4$) actually fits the distribution better. This indicates the \textit{File} nodes have lower density, which means the majority of files have low degrees. 
+
+Other three distributions, from \textit{Process} nodes, to \textit{Job} nodes, and to the \textit{User} nodes, are becoming more and more unlike power-law distribution. For the \textit{Process} graph, vertices with the lowest degrees is even fewer than vertices with larger degree. This means the processes in HPC systems tend to visit at least several files instead of just visiting one file. For \textit{Job} graph, the node degree distribution scatters randomly between the $\alpha=3$ line and $\aleph=0.5$ line. This is reasonable because most jobs in HPC tend to have more processes. As there are only 117 users, we do not consider they fit any distribution. But from Fig~\ref{doe}(a), we still can see most users only issue several jobs, a very small number of users will issue the most jobs.
+
+These graph structures direct the way of graph storage and processing. For example, the way to split a power-law graph has been well studied. Besides, we could also use this graph structures as a basis to create synthetic graphs to test the underlying performance of underlay graph infrastructure as currently real rich metadata are hard to get in a running HPC system.
+
+%To calculate the graph diameter and connected component, different entities and relationships are considered as the same kind of nodes and edges. For our example graph, the diameter is $x$ and the connected component number is $y$. This value can vary while we define new entity or relationship as next subsection shows.
+
+%\subsection{More Entities or Relationships} 
+%\textit{@todo: do we need this section? I guess can be eliminated?}
+%The metadata graph model allows users to define their own entities and relationships, so that we are able to support arbitrary metadata management functionalities. However, intuitively, adding new entities or defining new relationships will change the graph. In this section, we take some realistic examples of user-defined entities and relationships and show how they will affect the graph size and structure.
+
+%@todo add data
+
+%@todo discuss the trade-off.
+
+%\subsection{Real World Implications}
+%\textit{@todo will add some comparison with some popular open graph dataset including Twitter data, Facebook data, and Yahoo dataset.}

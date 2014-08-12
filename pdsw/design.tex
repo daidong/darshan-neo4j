@@ -1,47 +1,26 @@
-\section{Prototype and Design Choices}
+\section{Graph Facilities \& Design Choices}
 
-In this section, we introduce a prototype system showing how to build an example metadata graph from Darshan trace. This prototype gives a general idea of the complexity and challenges of proposed graph model. Based on that, we will discuss several important design choices for \textit{gRMM} including the storage choice, the different detailed levels of metadata choice, and the interface design etc. 
+The limitation of traditional databases especially the relational databases has lead the development of new categories of system called \textit{graph databases} to cover the requirements of complex graph-based relationships. In the last couple of years, there have been an increasing work about graph databases. Some popular graph databases include Sones, AllegroGraph, DEX, G-Store, HyperGraphDB, InfinitGraphDB, Neo4j, Titan, and OrientDB etc.
 
-\subsection{Darshan Metadata Graph Prototype}
-The most unique feature of rich metadata is that it contains the relationships between different entities like users, processes, and data files. Collecting such relationships usually requires modifications on the runtime systems. In this prototype, instead of changing the runtime system of HPC platform, we exploit the Darshan trace logs as the source of rich metadata.
+\subsection{Graph Databases}
+These graph databases can be categorized based on different metrics. Based on data storage, there are in-memory databases (e.g. Sones) and disk-based databases (e.g. AllegroGraph, DEX, Neo4j, Titan). Based on the graph data structure, there are \textit{simple graphs} databases, \textit{hypergraphs} databases, and \textit{property graphs} databases. Here, the simple graph indicates graph defined as a set of nodes connected by weighted edges. AllegroGraph and G-Store only support this simple graph data structure. Hypergraphs extends the simple graphs by allowing an edge to relate an arbitrary number of nodes. Databases like HyperGraphDB and Sones support these hypergraphs. Property graph indicates graph where nodes and edges contain properties. This property graph is the very basic of our proposed metadata graph model. Many databases like Neo4j, Titan, InfinitGraph, and DEX etc. support such graphs. 
 
-Darshan utility is a MPI library that can be linked to users' applications and generates I/O behaviors logs during applications are executing. Each Darshan log file represents a distinct job. The log entries of a job contain the user id who started this job, the executable file that current execution was based on, the parameters of this execution, and most importantly, the file access history of each process inside this job. To reduce log size, Darshan only stores the hashed information instead of original value.
+In addition to this, some graph databases support query languages like SQL in relational databases. For example, Neo4j supports Cypher graph traversal language, Titan supports Gremlin language etc. Although most graph databases provide basic APIs to travel graphs, it is still more easy and efficient to use a query language. 
 
-We can abstract this information in Darshan log file to different entities in \textit{gRMM}. First, each unique user id indicates a User entity; second, each Darshan log file represents a Job entity, and all the ranks (processes) inside it are corresponding to the Processes entities; and, both the executables and data files are abstracted as Data Object entities. There is not any directory structure as Darshan only use the hashed value to distinguish different files. All the parameters are considered as the properties of Job entities. Based on this abstraction, we were able to get three-year' Darshan trace (\textit{2010, 2012, 2013}) on Intrepid machine in Argonne National Lab. into an example graph. 
+Whether support distributed deployment also classify all these databases. Only part of those databases support distributed deployment due to the fact that distributing graph into different servers with ACID and enough performance is challenge. For example, Neo4j only supports high availability deployment, which means multiple copies of each data across the cluster rather than a distributing. There are still lots of research work going on this problem.
 
-\begin{table}[h]
-\caption{Graph Size with different abstraction levels.}
-  \label{abs}
-\centering
-\begin{tabular}{|c|c|l|l|}
-\hline
-           & \begin{tabular}[c]{@{}c@{}}Basic \\ Abstraction\end{tabular} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Abstraction \\ with Ranks\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Abstraction \\ with Directory\end{tabular}} \\ \hline
-Vertices   &                                                              &                                                                                        &                                                                                            \\ \hline
-Edges      &                                                              &                                                                                        &                                                                                            \\ \hline
-Properties &                                                              &                                                                                        &                                                                                            \\ \hline
-\end{tabular}
-\end{table}
+\subsection{Storing and Indexing Requirement}
 
-Table~\ref{abs} shows some statistics of such example graph. The first column named basic abstraction means that for the Execution entities, we only consider the Job. All the I/O behaviors from the processes inside a job will be considered to be from the Job entity. In this case, we got a graph containing x vertice, y edges, and z properties. For some use cases, the processes information (ranks in MPI applications) is also needed, so, in the second column of Table~\ref{abs}, we show the graph size with Processes entities. There are \textit{belongs/contains} relationships between Job and Processes entities, and also all the \textit{read/write} relationships are between Processes and Data Object now. The graph size increases sharply as you may see. 
+Actually, the graph database choices in our case are limited by the attributes of the metadata graphs. First, the metadata graphs are too large to fit into memory, so, the disk-based databases are better. Moreover, as the metadata graph is based on property graph model, which may store a large amount of properties, the graph could even too large to fit in one server. The distributed supports will be another necessary component. About the query language, it is not the first concern yet, but still, graph databases with a query language and some query optimizer (e.g. indexing) will be much better.  
 
-As we have described, the directory structure is missing in current Darshan trace. However, this part of metadata is critical in most of storage systems, so we create synthetic \textit{contains} and \textit{belongs} relationships between all Data Object entities according to the files and directories size in the real file systems of Intrepid at that time. The third column of Table~\ref{abs} shows the graph size with such directory structure.
+\subsection{Traversal Requirement}
 
-\subsection{Graph Storage Choice}
-The proposed metadata graph follows a property graph model, which is different from traditional graph that only contains simple weight value on each edge. The property graph needs to store both the graph structure, which indicates the connections between nodes, and the rich data associated with the graph including properties on both nodes and edges. So, traveling through the property graph is different from traditional graph: we should only travel through limited number of edges which satisfy certain conditions, for example the edges whose type is \textit{run} instead of going through all the out-edges. 
+From the example use cases in previous section, we can see that the key to use the metadata graph to support different use cases is effective graph traversal. In fact, the graph size, graph data structure, and storage layouts, all decided the performance of traveling a graph. The simplest case is to deal with moderate-sized simple graph. In this cases, traveling from one or several , or even all vertices and explore their k-hop neighborhood can be possible to perform in memory as the simple graph is smaller and possible be cached into memory. 
 
-There are several choices to store such graphs. The first choice will be a relation database, which was widely used to store provenance graph. Relation database is mature, supports huge data size with proper distributed deployment, and provides a flexible query language (SQL) to execute complex queries. According to the normal forms, storing such a graph in relation databases requires a complex scheme with multiple tables and foreign keys to refer each other. This table scheme causes poor performance while traveling the graph through edges as we need to join different tables to build a complete path. To avoid such time-consuming `join' operations, 
+However, traveling through a property graph like our metadata graph will be much complex. The main reason is that, during traveling, we usually need to apply filter or computations on some properties like previous provenance example shows. As these properties are too big to be cached in memory, each time, we need to load them from persistent devices. This will introduce lots of random seeking  leading to a poor performance. This is actually still a big challenge for property graph databases waiting for solving.
 
-Comparing with relation databases, graph databases are more suitable for such property graphs. Graph traversal languages like Gremlin, Cypher are also supported in these graph databases for querying. 
+\subsection{Graph Processing}
 
-Another storage choice is Key-Value storage systems. Comparing with relation databases and graph databases, they do not have any scheme. Simply mapping the nodes and edges as different objects and store their properties as the value of these objects provides a plain strategy to store the metadata graph. 
+In addition to the graph databases, there are also graph processing frameworks which can be used to perform computation or queries on graphs in a distributed way. Typical examples of these frameworks include Gigraph, which was designed and implemented based on Pregel computing model; GraphX, which was based on Spark computing framework; GraphLab, X-Stream, and GiGraph+ etc. 
 
-@TODO: In this section, we can show the performance of different storage systems (RDBMS, GraphDB, KeyValue) in different scenarios (Insert, Locate, Traversal). 
-
-
-\subsection{Metadata Detailed Level}
-
-@TODO: Shall we discuss the detailed level of metadata? 
-
-\subsection{Metadata Graph Interface}
-
-@TODO: 
+However, most these distributed graph processing frameworks work on the unstructured graphs which are usually simply stored as a plain file in CSR or CSC formats in a general storage back-end , like local disk, HDFS, S3, or RDD etc. So, there is a big gap from deploying graph algorithms on these plain graph formats to running these algorithms on a graph database. However, the ability to run complex graph algorithms is necessary for metadata management, and this ability can not be easily satisfied using the querying or searching facilities provided by graph databases. For example, in HPC system, we can run \textit{community discovery} algorithms on metadata graph to find the `closely' data files, which can be used to optimize their physical placements for better future I/O performance. These algorithms get the whole graph involved in the computation, contain multiple iterations, and last a long time. A distributed fault-tolerant graph processing model is a much better choice than writing applications to manage all these complexity.

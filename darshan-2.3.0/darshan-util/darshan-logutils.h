@@ -5,7 +5,7 @@
 
 #ifndef __DARSHAN_LOG_UTILS_H
 #define __DARSHAN_LOG_UTILS_H
-#include <darshan-log-format.h>
+#include "darshan-log-format.h"
 
 typedef struct darshan_fd_s* darshan_fd;
 
