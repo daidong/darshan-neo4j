@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  12 AUG 2014 01:21
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013) (format=pdflatex 2013.5.30)  18 AUG 2014 10:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -392,24 +392,28 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 )))
+(/usr/local/texlive/2013/texmf-dist/tex/latex/url/url.sty
+\Urlmuskip=\muskip11
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
+)
 (/usr/local/texlive/2013/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2004/09/05 1.3 listings language file
 )
 (./main.aux)
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 69.
-LaTeX Font Info:    ... okay on input line 69.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 71.
+LaTeX Font Info:    ... okay on input line 71.
  (/usr/local/texlive/2013/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count130
@@ -441,51 +445,91 @@ LaTeX Warning: No \author given.
 
 
 
-]) (./model.tex [2]) (./proto.tex
-Overfull \hbox (13.03914pt too wide) in paragraph at lines 19--33
- [][] 
+]) (./model.tex) (./proto.tex [2]
+<exps/udegree.pdf, id=14, 578.16pt x 361.35pt>
+File: exps/udegree.pdf Graphic file (type pdf)
+ <use exps/udegree.pdf>
+Package pdftex.def Info: exps/udegree.pdf used on input line 62.
+(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
+
+<exps/jdegree.pdf, id=16, 578.16pt x 361.35pt>
+File: exps/jdegree.pdf Graphic file (type pdf)
+ <use exps/jdegree.pdf>
+Package pdftex.def Info: exps/jdegree.pdf used on input line 62.
+(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
+
+<exps/pdegree.pdf, id=18, 578.16pt x 361.35pt>
+File: exps/pdegree.pdf Graphic file (type pdf)
+ <use exps/pdegree.pdf>
+Package pdftex.def Info: exps/pdegree.pdf used on input line 63.
+(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
+
+<exps/fdegree.pdf, id=20, 578.16pt x 361.35pt>
+File: exps/fdegree.pdf Graphic file (type pdf)
+ <use exps/fdegree.pdf>
+Package pdftex.def Info: exps/fdegree.pdf used on input line 64.
+(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
+ [3 <./exps/udegree.pdf> <./exps/jdegree.pdf> <./exps/pdegree.pdf> <./exps/fdeg
+ree.pdf>]) (./usecases.tex [4]) (./design.tex) (./conclusion.tex) (./ack.tex) (
+./main.bbl
+Overfull \hbox (2.30745pt too wide) in paragraph at lines 25--26
+[]\OT1/ptm/m/n/10 ``Provenance,'' in \OT1/ptm/m/it/10 http://en.wikipedia.org/w
+iki/Provenance\OT1/ptm/m/n/10 . 
+ []
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 57--58
+[]\OT1/ptm/m/n/10 ``Property Graph,'' $http : / / www . w3 . org / community /
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+Underfull \hbox (badness 7362) in paragraph at lines 70--74
+[]\OT1/ptm/m/n/10 U. Braun, S. Garfinkel, D. A. Hol-land, K.-K.
+ []
 
-<exps/udegree.pdf, id=16, 578.16pt x 361.35pt>
-File: exps/udegree.pdf Graphic file (type pdf)
- <use exps/udegree.pdf>
-Package pdftex.def Info: exps/udegree.pdf used on input line 58.
-(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
 
-<exps/jdegree.pdf, id=18, 578.16pt x 361.35pt>
-File: exps/jdegree.pdf Graphic file (type pdf)
- <use exps/jdegree.pdf>
-Package pdftex.def Info: exps/jdegree.pdf used on input line 58.
-(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
+Underfull \hbox (badness 3690) in paragraph at lines 88--89
+[]\OT1/ptm/m/n/10 ``FTP site: Dar-shan data.'' $ftp : / / ftp . mcs . anl . gov
+ / pub /
+ []
 
-<exps/pdegree.pdf, id=20, 578.16pt x 361.35pt>
-File: exps/pdegree.pdf Graphic file (type pdf)
- <use exps/pdegree.pdf>
-Package pdftex.def Info: exps/pdegree.pdf used on input line 59.
-(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
 
-<exps/fdegree.pdf, id=22, 578.16pt x 361.35pt>
-File: exps/fdegree.pdf Graphic file (type pdf)
- <use exps/fdegree.pdf>
-Package pdftex.def Info: exps/fdegree.pdf used on input line 60.
-(pdftex.def)             Requested size: 578.15858pt x 361.34912pt.
- [3])
-(./usecases.tex [4 <./exps/udegree.pdf> <./exps/jdegree.pdf> <./exps/pdegree.pd
-f> <./exps/fdegree.pdf>]
-LaTeX Font Info:    Try loading font information for OT1+pcr on input line 45.
+Underfull \hbox (badness 10000) in paragraph at lines 101--103
+[]\OT1/ptm/m/n/10 ``Twitter Statis-tics,'' $http : / / www . statisticbrain . c
+om /
+ []
 
-(/usr/local/texlive/2013/texmf-dist/tex/latex/psnfss/ot1pcr.fd
-File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
-LaTeX Font Info:    Font shape `OT1/pcr/m/it' in size <8> not available
-(Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 46.
-) (./design.tex
-[5]) (./conclusion.tex) (./ack.tex) (./main.bbl
 
-Package natbib Warning: Empty `thebibliography' environment on input line 24.
+Underfull \hbox (badness 10000) in paragraph at lines 110--112
+[]\OT1/ptm/m/n/10 ``Twitter Edge Statis-tics,'' $http : / / www .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 110--112
+\OT1/ptm/m/n/10 theguardian . com / technology / blog / 2009 / jun / 29 /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 141--142
+[]\OT1/ptm/m/n/10 ``Provenance Chal-lenges,'' $http : / / twiki . ipaw . info /
+ bin /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 154--157
+\OT1/ptm/m/n/10 Database,'' in \OT1/ptm/m/it/10 Web-Age In-for-ma-tion Man-age-
+ment\OT1/ptm/m/n/10 .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 159--160
+[]\OT1/ptm/m/n/10 ``InfiniteGraph,'' $http : / / www . objectivity . com /
+ []
+
+
+Underfull \hbox (badness 1910) in paragraph at lines 196--199
+\OT1/ptm/m/n/10 and J. M. Heller-stein, ``Graphlab: A New Frame-
+ []
 
 )
 
@@ -501,29 +545,27 @@ Before submitting the final camera ready copy, remember to:
 
 [6] (./main.aux) ) 
 Here is how much of TeX's memory you used:
- 6297 strings out of 493315
- 89129 string characters out of 6137904
- 211570 words of memory out of 5000000
- 9596 multiletter control sequences out of 15000+600000
- 44228 words of font info for 92 fonts, out of 8000000 for 9000
+ 6371 strings out of 493315
+ 91348 string characters out of 6137904
+ 197717 words of memory out of 5000000
+ 9671 multiletter control sequences out of 15000+600000
+ 45543 words of font info for 90 fonts, out of 8000000 for 9000
  960 hyphenation exceptions out of 8191
- 42i,16n,47p,1381b,1030s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,17n,47p,1430b,382s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2013/texmf-dist/fonts/enc/dvips/base/8r.e
 nc}</usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pf
 b></usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb>
 </usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
 usr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></u
 sr/local/texlive/2013/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr
-/local/texlive/2013/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/t
-exlive/2013/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/local/texlive/
-2013/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2013/texmf
--dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2013/texmf-dist/fon
-ts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2013/texmf-dist/fonts/type1/u
-rw/times/utmri8a.pfb>
-Output written on main.pdf (6 pages, 403465 bytes).
+/local/texlive/2013/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/tex
+live/2013/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2013
+/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2013/texmf-dis
+t/fonts/type1/urw/times/utmri8a.pfb>
+Output written on main.pdf (6 pages, 387822 bytes).
 PDF statistics:
- 108 PDF objects out of 1000 (max. 8388607)
- 76 compressed objects within 1 object stream
+ 99 PDF objects out of 1000 (max. 8388607)
+ 69 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  45 words of extra memory for PDF output out of 10000 (max. 10000000)
 

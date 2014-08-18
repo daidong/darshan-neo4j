@@ -1,26 +1,26 @@
 \section{Graph-based Metadata Model}
-In fact, we already consider metadata as a graph. The traditional directory-based file management constructs a tree structure to manage files with additional metadata stored in \textit{inodes} at leaves in the tree. This tree is a graph. The provenance standard (\textit{Open Provenance Model}) considers the provenance of objects is represented by an annotated causality graph, which is a directed acyclic graph enriched with annotations capturing further information. 
+%ritchie1978unix
+In fact, we already consider metadata as a graph. The traditional directory-based file management constructs a tree structure to manage files with additional metadata stored in \textit{inodes} at leaves in the tree~\cite{tanenbaum1992modern}. This tree is a graph. The provenance standard (\textit{Open Provenance Model}~\cite{moreau2011open}) considers the provenance of objects is represented by an annotated causality graph, which is a directed acyclic graph enriched with annotations capturing further information. 
 
-We generalize these graphs in HPC scenarios and propose the metadata graph model. The metadata graph is derived from the \textit{property graph model}, which includes vertice that represent entities in the system, edges that show their relationships, and properties. The properties are the main difference from a traditional weighted graph; they annotate both vertice and edges, and can store arbitrary information users want. Based on the entities in HPC environment, we introduce the strategy to map the possibly arbitrary rich metadata into this property graph model.
+We generalize these graphs in HPC scenarios and propose the metadata graph model. The metadata graph is derived from the \textit{property graph model}~\cite{propertygraph}, which includes vertice that represent entities in the system, edges that show their relationships, and properties that annotate both vertice and edges and can store arbitrary information users want. Based on the entities in HPC environment, we introduce the strategy to map the possibly arbitrary rich metadata into this property graph model.
 
 \subsection{Entity To Vertex}
 
-In an HPC platform, there are different entities (e.g. users, processes, and data files) that play different roles. Moreover, users also can define other logical entities, like \textit{user groups} or \textit{work-flow} as they need. 
-So, we define three basic entities, and allow users to extend them as user-defined entities.
+In an HPC platform, there are three basic entities: users, applications, and data files. Moreover, users also can define other logical entities, like \textit{user groups} or \textit{work-flow} as they need. So, in our strategy, we define three basic entities and allow users to extend them to build more entities.
 
 \begin{itemize}
-\item \textit{Data Object}: It represents the smallest data unit in storage systems. Each file in PFS(Parallel File System) indicates one data object. Moreover, the directory is also a data object, which contains multiple other data objects. The applications or users programs are also data objects.
+\item \textit{Data Object}: It represents the smallest data unit in storage systems. Each file in PFS (Parallel File System) indicates one data object. Moreover, the directory is also a data object, which contains multiple files. %The applications or users programs are also data objects.
 
-\item \textit{Executions }: They represents the execution of applications. There are basically three kinds of executions: the \textit{Job} submitted by
-the user, parallel \textit{Processes} scheduled from one job, and the possible \textit{Threads} running inside each processes. For simplicity, we name all these entities as \textit{Execution} entity in later discussion.
+\item \textit{Executions}: They represents the execution of applications. There are three levels of executions: \textit{Job} submitted by
+the user; \textit{Processes} scheduled from one job; and \textit{Threads} running inside one process. Different use cases require certain level of execution details, and generate graphs with different size. For simplicity, we name all these entities as \textit{Execution} entity in later discussion.
 
-\item \textit{User}: It represents the real users of the cluster.
+\item \textit{User}: It simply means the real users of the cluster.
 \end{itemize}
 
-In addition to these basic entities, users can define their own entities. The only limitation is the new entity must connect with existing entities. The reason is to keep every element in the graph accessible by traveling through the graph.
+In addition to these basic entities, users usually define their own entities. The user-defined entities must connect with existing entities to keep every element in the graph accessible by traveling through the graph.
 
 \subsection{Relation To Edge}
-We define several basic relationships based on these basic entities in Table~\ref{rel}. Each cell shows the relationships from the row identifier to the column identifier. It denotes a directed edge in the metadata graph. For example, \textit{run} indicates that the User runs an Execution, which could be Job or just a Process; \textit{exe} means one Execution was started from an application, which are Data Objects.
+There are several basic relationships  between the basic entities in Table~\ref{rel}. Each cell shows the basic relationships from the row identifier to the column identifier. Each relationship denotes a directed edge in the metadata graph. For example, \textit{run} indicates that the user starts an execution; \textit{exe} means one execution is based on the data objects as the executable files; \textit{read/write} indicates the I/O operations from executions to data objects. For all those relationships, we also define the reversed ones to accelerate the reversed traversal.
 
 \begin{table}[h]
 \caption{Default Relationships Definition.}
@@ -28,17 +28,16 @@ We define several basic relationships based on these basic entities in Table~\re
 \centering
 \begin{tabular}{|c||c|c|c|}
 \hline
- & \textbf{User} & \textbf{Execution} & \textbf{Data Objects} \\ \hline
+ & \textbf{User} & \textbf{Execution} & \textbf{Data Object} \\ \hline
 \textbf{User} &  & \textit{run} & \\ \cline{1-4}
 \textbf{Execution} & \textit{wasRunBy} & \begin{tabular}[c]{@{}l@{}}\textit{belongs,}\\ \textit{contains}\end{tabular} & \begin{tabular}[c]{@{}c@{}}\textit{exe,}\\ \textit{read,}\\ \textit{write}\end{tabular}\\ \cline{1-4}
-\textbf{Data Objects} &  & \begin{tabular}[c]{@{}c@{}} \textit{exedBy,} \\ \textit{wasReadBy,}\\ \textit{wasWrittenBy} \end{tabular} & \begin{tabular}[c]{@{}l@{}}\textit{belongs,}\\ \textit{contains}\end{tabular} \\ \hline
+\textbf{Data Object} &  & \begin{tabular}[c]{@{}c@{}} \textit{exedBy,} \\ \textit{wasReadBy,}\\ \textit{wasWrittenBy} \end{tabular} & \begin{tabular}[c]{@{}l@{}}\textit{belongs,}\\ \textit{contains}\end{tabular} \\ \hline
 \end{tabular}
 \end{table}
 
-There are \textit{belongs/contains} cells. In the Execution entity case, it means the Job contains Processes and Process belongs to a Job. In the Data Objects case, it can show that one directory may contain multiple files or directories. Users can create their own relationships, which could be metadata that current graph does not record. For example, two users can have a new relationships called \textit{login-together} if they login the system roughly at the same time.
+There are several \textit{belongs/contains} relationships. In the Execution entity case, it means one job contains multiple processes, which in turns belong to this job. In the Data Objects case, it can show that one directory may contain multiple files or directories. Users can create their own relationships from two existing entities. For example, two users can have a new relationships called \textit{login-together} if they login the system roughly at the same time.
 
 \subsection{Property}
-To collect rich metadata, we always need to collect annotations on entities or their relationships. In proposed graph model, we can store them using properties. which is in a key-value formation and could be default or user-defined. For example, all entities and relationships both have a default property named `Type' to distinguish themselves, like User vertice have `Type' as 'user'. And, there usually are attributes for different entities, like the user name, user privilege, execution parameters, data name, and data permission mode etc. We could abstract them as properties of the graph. Timestamps is another important category of property. For example, the \textit{run} relationship has a $start_{ts}$ and a $end_{ts}$ attribute and the \textit{read} relationship has one $ts$ attribute. 
+Rich metadata also contain annotations on entities and their relationships. In graph model, we store them as properties, which are key-value pairs attached on vertices and edges. Users can create their own properties on existed vertices and edges except their keys need to be unique in each user's namespace. By isolating properties by users, we avoid global contention among different users.  The properties could be very flexible and diverse. For example, there are properties like user name, privilege, execution parameters, file permission, and file creation and access time etc. 
 
-Users can create their own properties except the keys need to be unique in each users' namespace. We isolate properties by users, so that users are free to create any metadata without introducing global contention.
-
+%In fact, the property can be mapped as new entity and new relationship. For example, a property of 

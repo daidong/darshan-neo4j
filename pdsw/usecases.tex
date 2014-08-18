@@ -4,7 +4,7 @@ Unifying rich metadata into one graph turns many appealing data management funct
 
 \subsection{User Audit}
 
-Data auditing is a critical capability in large computing facilities where users from different institutions or countries share the same cluster. A detailed view of users behaviors can be useful for daily maintenance and security. In metadata graph, we already collect the \textit{run} relationships between Users and Executions, and the \textit{read/write} relationships between Executions and Data Objects. Moreover, all those relationships contain properties like timestamps. In such graph, the need to find all the files that were read by a specific user during given time frame [$t_s$, $t_e$] will become several graph operations like this: 1) query the metadata graph from the given user; 2) travel through \textit{run} edges to Execution nodes; 3) filter executions based on the given time frame; 4) and travel through the \textit{read} edges to the final files. Similarly, if we want to get all the users who used to read to a sensitive file, we can do the similar graph query from the give file node.
+Data auditing is critical in large computing facilities where different users share the same cluster. It at least requires the detailed view of users file access for future security check. In metadata graph, we already collect the \textit{run} relationships between Users and Executions, and the \textit{read/write} relationships between Executions and Data Objects. And, all those relationships contain properties like timestamps. In such graph, the need to find all the files that were read by a specific user during given time frame [$t_s$, $t_e$] will become graph operations like this: 1) query the metadata graph from the given user; 2) travel through \textit{run} edges to Execution nodes; 3) filter executions based on the given time frame; 4) and travel through the \textit{read} edges to the final files. Similarly, if we want to get all the users who used to read to a sensitive file, we can do the similar graph query from the give file node.
 
 %This query can be expressed as a Gremlin script easily like following code shows:
 %\begin{lstlisting}
@@ -23,7 +23,7 @@ Data auditing is a critical capability in large computing facilities where users
 
 
 \subsection{Hierarchical Data Traversal}
-Hierarchical data organization is used to present a logical layout of data sets to users. The simplest example of hierarchical data traversal is traditional directory namespace traveling, which has been the de facto method to travel through file systems for as long as Unix has existed. In metadata graph model, we already abstract both the directories and files as Data Object entities. The \textit{belongs} and \textit{contains} relationships between different Data Objects represent the relationships between files and directories. So, given an absolute path, locating the file becomes going through a bunch of \textit{contains} edges from a Data Object node. Each time, we filter the edges according to the given names. Moreover, the access control metadata attached in users, files, and directories also could be verified while traversing. 
+Hierarchical data organization is used to present a logical layout of data sets to users. The simplest example of hierarchical data traversal is traditional directory namespace traveling. In metadata graph model, we already abstract both the directories and files as Data Object entities. The \textit{belongs} and \textit{contains} relationships between different Data Objects represent the relationships between files and directories. So, given an absolute path, locating the file becomes going through a bunch of \textit{contains} edges from a Data Object node. Each time, we filter the edges according to the given names. Moreover, the access control metadata attached in users, files, and directories also could be verified while traversing. 
 
 %\begin{lstlisting}
 %// locate: /rootFS/dir/file.data
@@ -33,31 +33,34 @@ Hierarchical data organization is used to present a logical layout of data sets 
 %     .filter{it.name = file.data}
 %\end{lstlisting}
 
-An appealing advantage of using graph to store the directory structure of file system is the scalability. Traditional POSIX directory structure limits the number of files inside one directory. So, HPC system that may have millions of files under one directory, needs to deploy specific system like Giga+ to distribute the metadata into multiple servers for better performance. However, for proposed graph model, this is a genetic graph slicing problem, which we have several standard ways to tackle.
+An appealing advantage of using graph to store the directory structure of file system is the scalability. Traditional POSIX directory structure limits the number of files inside one directory. So, HPC system that may have millions of files under one directory, needs to deploy specific system like Giga+ to distribute the metadata into multiple servers for better performance~\cite{patil2011scale}. However, for proposed graph model, this turns into a graph partition problem, which we have been well studied~\cite{kim2012sbv, gonzalez2012powergraph, abou2006multilevel}.
 
-In addition to traditional POSIX-style files and directories, several other hierarchical data traversal examples are possible in graph model too, like the semantic data management. Scientists usually need to manage their data in a semantic way, like arranging all of the inputs and outputs of a single simulation execution together. Traditionally, this needs careful file naming and directories placement. But in metadata graph, we can simply create an entity named Simulation and connect it with the Data Object with \textit{input/output} relationships. This will intelligently help users organize data in multiple dimensions.
+In addition to traditional POSIX-style files and directories, semantic data management would be another hierarchical traversal use case. Scientists usually need to manage their data in a semantic way, like arranging all of the inputs and outputs of a single simulation execution together. Traditionally, this needs careful file naming and directories placement. But in metadata graph, we can simply create new entity named Simulation and connect it with the Data Object with \textit{input/output} relationships. This will intelligently help users organize data in multiple dimensions.
 
 \subsection{Provenance Support}
-Provenance has a wide range of use cases including data reproducibility, work-flow management etc. As a superset of provenance, the metadata graph model is able to support most of these usages. In this subsection, we borrow the problem from the first Provenance Challenge as an example. 
+Provenance has a wide range of use cases including data reproducibility, work-flow management etc. As a superset of provenance, the metadata graph model is able to support these usages. In this subsection, we borrow the problem from the first Provenance Challenge as an example~\cite{provchallengeweb}. 
 
-In this challenge, a simple example work-flow was provided as the basis, a workable provenance system should be able to represent the work-flow and all the relevant provenance for the example work-flow, and, most importantly, be able to answer nine predefined queries. Based on proposed graph model, we can easily abstract the work-flow as serial of Executions run by one User. Each execution reads several Data Objects and generates outputs for applications in next phase. Based on this work-flow, the provenance system needs to answer nine queries. Here, we use the 8th query as an example:
+In this challenge, a simple example work-flow was provided as the basis, a workable provenance system should be able to represent the work-flow and all the relevant provenance for the example work-flow, and, most importantly, be able to answer predefined queries. Based on proposed graph model, we can easily abstract the work-flow as serial of executions run by the same user. Each execution reads several Data Objects and generates outputs for applications in next phase. Based on this work-flow, the provenance system needs to answer queries like: \textit{find the execution whose model is AlignWarp and inputs have annotation} [`center':`UChicago']. This can be expressed easily in the metadata graph: 1) query all the Execution vertices that have \textit{exe} out-edge pointing to a Data Object named `AlignWarp'; 2) start from all those Execution vertices and get those executions whose property `center' equal to `UChicago'.
 
-\begin{lstlisting}
-//Query 8
-wf{*}: upstream(x) union x
-       where x.module=AlignWarp
-       and
-       y in input(x)
-       and
-       y.annotation('center')='UChicago'
-\end{lstlisting}
+A notable advantage of the metadata graph comparing with pure provenance system is that we can cross-reference different category of metadata in an unified way. If the provenance query needs the help of other metadata, like the file size, permission mode, or user group information etc., processing them in a unified graph will be more efficient and straightforwards.
 
-This query mean we need to return all applications whose module is `AlignWarp' and all their inputs are annotated with key-value pair: [`center':`UChicago']. This can be expressed easily in the metadata graph: 1) query all the nodes that represent Execution entity and have an \textit{exe} out-edge that points to a Data Object named `AlignWarp'; 2) start from all those nodes and filter out those executions whose property `center' does not equal to `UChicago'; 3) return all these executions.
+
+%. Here, we use the 8th query as an example:
+
+%\begin{lstlisting}
+%//Query 8
+%wf{*}: upstream(x) union x
+%       where x.module=AlignWarp
+%       and
+%       y in input(x)
+%       and
+%       y.annotation('center')='UChicago'
+%\end{lstlisting}
+
+
 %\begin{lstlisting}
 %//Query 8
 %exes = graph.V(Executions).out('exe')
 %			.filter(it.name = AlignWarp)
 %exes.out('read').filter(it.center = 'UChicago')
 %\end{lstlisting}
-
-A notable advantage of our metadata graph comparing with pure provenance system is that we can cross-reference different category of metadata in an unified way. If the provenance query needs the help of other metadata, like the file size, permission mode, or user group information etc., processing them in a unified graph will be more efficient and straightforwards.

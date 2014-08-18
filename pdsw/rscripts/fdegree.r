@@ -37,6 +37,7 @@ legend("topright", legend = c(expression(paste(alpha, " = 4")),
 	expression(paste(alpha, " = 2")), 
 	expression(paste(alpha, " = 1"))), 
 	lty=c(1,1,1),
-	col=2:4)
+	col=2:4,
+	cex=1.5)
 
 invisible(dev.off())
